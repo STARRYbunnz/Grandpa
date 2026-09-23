@@ -1,11 +1,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
+/// <summary>
+/// Attach to the drop-zone UI element (an Image or plain panel with a
+/// RectTransform works fine - it doesn't need to be raycast-targetable).
+/// That's the only setup required: the zone registers itself automatically,
+/// so MoneyStack doesn't need any manual reference to find it.
+///
+/// Places incoming money at a random, non-overlapping spot within the
+/// zone's rect, with a random left/right tilt, so stacks never land
+/// perfectly on top of each other.
+/// </summary>
 [RequireComponent(typeof(RectTransform))]
 public class DropZone : MonoBehaviour
 {
-   
+    // Every enabled DropZone registers here so MoneyStack can find "whatever
+    // zone is under this point" without any manual wiring.
     private static readonly List<DropZone> ActiveZones = new List<DropZone>();
 
     [Header("Tilt Settings")]
@@ -19,10 +29,10 @@ public class DropZone : MonoBehaviour
     [Tooltip("Keeps stacks from spawning too close to the zone's edges.")]
     public float edgePadding = 20f;
 
-    
+    /// <summary>Fires whenever the total cash value in this zone changes (e.g. to update a HUD).</summary>
     public event System.Action<int> OnTotalValueChanged;
 
-   
+    /// <summary>Running total value of every note currently placed in this zone.</summary>
     public int TotalValue { get; private set; }
 
     private RectTransform _rect;
@@ -32,7 +42,7 @@ public class DropZone : MonoBehaviour
     private void OnEnable() => ActiveZones.Add(this);
     private void OnDisable() => ActiveZones.Remove(this);
 
-    
+    /// <summary>Finds whichever registered DropZone contains this screen point, if any.</summary>
     public static DropZone FindZoneAtScreenPoint(Vector2 screenPoint, Camera cam)
     {
         foreach (var zone in ActiveZones)
@@ -45,22 +55,31 @@ public class DropZone : MonoBehaviour
 
     public bool CanAccept(MoneyStack stack) => _stacksInZone.Count < maxStacksInZone;
 
-    
+    /// <summary>Places the stack at a free spot inside the zone with a random tilt.</summary>
     public void PlaceMoney(MoneyStack stack)
     {
         RectTransform stackRect = stack.GetComponent<RectTransform>();
-        Vector2 point = FindFreeLocalPosition();
+
+        // Decide the tilt first, then work out how much space that rotated
+        // note actually needs, so the placement point keeps the WHOLE note
+        // (corners included) inside the zone - not just its center.
+        Quaternion rotation = GetRandomTiltRotation();
+        Vector2 noteSize = Vector2.Scale(stackRect.rect.size, stack.OriginalScale);
+        Vector2 boundingHalfExtents = GetRotatedBoundingHalfExtents(noteSize, rotation.eulerAngles.z);
+
+        Vector2 point = FindFreeLocalPosition(boundingHalfExtents);
 
         stackRect.SetParent(_rect, false);
         stackRect.anchoredPosition = point;
-        stackRect.localRotation = GetRandomTiltRotation();
+        stackRect.localRotation = rotation;
+        stackRect.localScale = stack.OriginalScale; // keep note size consistent, independent of the zone's own scale
 
         _stacksInZone.Add(stack);
         TotalValue += stack.Value;
         OnTotalValueChanged?.Invoke(TotalValue);
     }
 
-    
+    /// <summary>Called by MoneyStack when it's picked back up from this zone.</summary>
     public void RemoveStack(MoneyStack stack)
     {
         if (_stacksInZone.Remove(stack))
@@ -70,24 +89,37 @@ public class DropZone : MonoBehaviour
         }
     }
 
-    private Vector2 FindFreeLocalPosition()
+    private Vector2 FindFreeLocalPosition(Vector2 boundingHalfExtents)
     {
         for (int i = 0; i < maxPlacementAttempts; i++)
         {
-            Vector2 candidate = GetRandomLocalPoint();
+            Vector2 candidate = GetRandomLocalPoint(boundingHalfExtents);
             if (IsFarEnoughFromOthers(candidate))
                 return candidate;
         }
-        
-        return GetRandomLocalPoint();
+        // Fallback if the zone is crowded: use whatever random (but still in-bounds) point we get.
+        return GetRandomLocalPoint(boundingHalfExtents);
     }
 
-    private Vector2 GetRandomLocalPoint()
+    private Vector2 GetRandomLocalPoint(Vector2 boundingHalfExtents)
     {
         Rect r = _rect.rect;
-        float halfX = Mathf.Max(0f, r.width * 0.5f - edgePadding);
-        float halfY = Mathf.Max(0f, r.height * 0.5f - edgePadding);
+        // Subtract the note's own (rotated) half-size so its edges/corners
+        // can never land past the zone's border, on top of the edge padding.
+        float halfX = Mathf.Max(0f, r.width * 0.5f - edgePadding - boundingHalfExtents.x);
+        float halfY = Mathf.Max(0f, r.height * 0.5f - edgePadding - boundingHalfExtents.y);
         return new Vector2(Random.Range(-halfX, halfX), Random.Range(-halfY, halfY));
+    }
+
+    /// <summary>Axis-aligned half-width/half-height of a rectangle after it's rotated by angleDegrees.</summary>
+    private static Vector2 GetRotatedBoundingHalfExtents(Vector2 size, float angleDegrees)
+    {
+        float rad = angleDegrees * Mathf.Deg2Rad;
+        float cos = Mathf.Abs(Mathf.Cos(rad));
+        float sin = Mathf.Abs(Mathf.Sin(rad));
+        float halfW = size.x * 0.5f;
+        float halfH = size.y * 0.5f;
+        return new Vector2(halfW * cos + halfH * sin, halfW * sin + halfH * cos);
     }
 
     private bool IsFarEnoughFromOthers(Vector2 point)
@@ -104,7 +136,7 @@ public class DropZone : MonoBehaviour
 
     private Quaternion GetRandomTiltRotation()
     {
-       
+        // 50/50 left or right, magnitude randomized within range.
         float sign = Random.value < 0.5f ? -1f : 1f;
         float angle = sign * Random.Range(minTiltAngle, maxTiltAngle);
         return Quaternion.Euler(0f, 0f, angle);
