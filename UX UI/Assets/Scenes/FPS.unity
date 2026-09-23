@@ -348,7 +348,7 @@ GameObject:
   - component: {fileID: 284865790}
   - component: {fileID: 284865789}
   - component: {fileID: 284865795}
-  - component: {fileID: 284865794}
+  - component: {fileID: 284865796}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -472,22 +472,6 @@ Transform:
   - {fileID: 1592222230}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &284865794
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 284865788}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43a3cf42357b19b4b8f182a2a8cc63db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerCamera: {fileID: 0}
-  walkSpeed: 5
-  runSpeed: 10
-  canMove: 1
 --- !u!143 &284865795
 CharacterController:
   m_ObjectHideFlags: 0
@@ -514,6 +498,21 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &284865796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 284865788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c7d4d97322cc0a43a7431d23b3f5637, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerCamera: {fileID: 0}
+  walkSpeed: 2
+  runSpeed: 5
 --- !u!1 &722628668
 GameObject:
   m_ObjectHideFlags: 0
@@ -723,8 +722,6 @@ GameObject:
   - component: {fileID: 1592222233}
   - component: {fileID: 1592222232}
   - component: {fileID: 1592222231}
-  - component: {fileID: 1592222235}
-  - component: {fileID: 1592222234}
   - component: {fileID: 1592222236}
   m_Layer: 0
   m_Name: player cam
@@ -768,7 +765,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1592222229}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &1592222233
 Camera:
   m_ObjectHideFlags: 0
@@ -820,48 +817,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!114 &1592222234
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1592222229}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43a3cf42357b19b4b8f182a2a8cc63db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerCamera: {fileID: 0}
-  walkSpeed: 10
-  runSpeed: 10
-  canMove: 1
---- !u!143 &1592222235
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1592222229}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1592222236
 MonoBehaviour:
   m_ObjectHideFlags: 0

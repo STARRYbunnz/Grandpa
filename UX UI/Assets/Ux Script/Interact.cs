@@ -18,14 +18,14 @@ public class Interact : MonoBehaviour
         
     }
 
-    void Update()
+    void Update()  
     {
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.E))  
         {
             Ray r = new Ray(InteractorSource.position, InteractorSource.forward);
-            if (Physics.Raycast(r, out RaycastHit hitInfo, InteractRange))
+            if (Physics.Raycast(r, out RaycastHit hitInfo, InteractRange))  
             {
-                if (hitInfo.collider.gameObject.TryGetComponent(out IInteractable interactObj))
+                if (hitInfo.collider.gameObject.TryGetComponent(out IInteractable interactObj)) 
                 {
                     interactObj.Interact();
                 }
