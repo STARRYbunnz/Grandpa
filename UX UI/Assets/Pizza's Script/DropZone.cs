@@ -34,8 +34,11 @@ public class DropZone : MonoBehaviour
 
     /// <summary>Running total value of every note currently placed in this zone.</summary>
     public int TotalValue { get; private set; }
+    public RectTransform Rect { get; internal set; }
+    public static IEnumerable<DropZone> All { get; internal set; }
 
     private RectTransform _rect;
+    internal string acceptId;
     private readonly List<MoneyStack> _stacksInZone = new List<MoneyStack>();
 
     private void Awake() => _rect = GetComponent<RectTransform>();
@@ -140,5 +143,15 @@ public class DropZone : MonoBehaviour
         float sign = Random.value < 0.5f ? -1f : 1f;
         float angle = sign * Random.Range(minTiltAngle, maxTiltAngle);
         return Quaternion.Euler(0f, 0f, angle);
+    }
+
+    internal void ClearOccupant(DraggableItem draggableItem)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    internal float GetTopEdgeInParentSpace(RectTransform rectTransform, Camera camera)
+    {
+        throw new System.NotImplementedException();
     }
 }
