@@ -18,6 +18,18 @@ public class DropZone : MonoBehaviour
     // zone is under this point" without any manual wiring.
     private static readonly List<DropZone> ActiveZones = new List<DropZone>();
 
+    [Header("Accept Filter")]
+    [Tooltip("0 = accept any note. Otherwise only notes with this value (20, 50, 100).")]
+    public int acceptedValue = 0;
+
+    [Header("Neat Stack Mode (use this on the 20 / 50 / 100 stack zones)")]
+    [Tooltip("ON = random left/right tilt. Turn OFF for the money stacks so notes sit straight.")]
+    public bool randomTilt = true;
+    [Tooltip("ON = notes go to the CENTER of this zone and pile up. Put the zone's center on the stack slot.")]
+    public bool snapToCenter = false;
+    [Tooltip("How far each extra note in the pile moves from the one below (UI pixels).")]
+    public Vector2 stackOffset = new Vector2(0f, 3f);
+
     [Header("Tilt Settings")]
     public float minTiltAngle = 6f;
     public float maxTiltAngle = 22f;
@@ -56,7 +68,10 @@ public class DropZone : MonoBehaviour
         return null;
     }
 
-    public bool CanAccept(MoneyStack stack) => _stacksInZone.Count < maxStacksInZone;
+    // CHANGED: also checks that the note's value matches acceptedValue (0 = any)
+    public bool CanAccept(MoneyStack stack) =>
+        _stacksInZone.Count < maxStacksInZone &&
+        (acceptedValue == 0 || stack.Value == acceptedValue);
 
     /// <summary>Places the stack at a free spot inside the zone with a random tilt.</summary>
     public void PlaceMoney(MoneyStack stack)
@@ -66,16 +81,20 @@ public class DropZone : MonoBehaviour
         // Decide the tilt first, then work out how much space that rotated
         // note actually needs, so the placement point keeps the WHOLE note
         // (corners included) inside the zone - not just its center.
-        Quaternion rotation = GetRandomTiltRotation();
-        Vector2 noteSize = Vector2.Scale(stackRect.rect.size, stack.OriginalScale);
+        Vector3 localScale = GetLocalScaleFor(stack);   // same on-screen size as the note's resting size
+        Quaternion rotation = randomTilt ? GetRandomTiltRotation() : Quaternion.identity;
+        Vector2 noteSize = Vector2.Scale(stackRect.rect.size, localScale);
         Vector2 boundingHalfExtents = GetRotatedBoundingHalfExtents(noteSize, rotation.eulerAngles.z);
 
-        Vector2 point = FindFreeLocalPosition(boundingHalfExtents);
+        // Neat pile in the middle of the zone, or a random free spot
+        Vector2 point = snapToCenter
+            ? stackOffset * _stacksInZone.Count
+            : FindFreeLocalPosition(boundingHalfExtents);
 
         stackRect.SetParent(_rect, false);
         stackRect.anchoredPosition = point;
         stackRect.localRotation = rotation;
-        stackRect.localScale = stack.OriginalScale; // keep note size consistent, independent of the zone's own scale
+        stackRect.localScale = localScale;          // keeps the note the same size on screen in every zone
 
         _stacksInZone.Add(stack);
         TotalValue += stack.Value;
@@ -135,6 +154,19 @@ public class DropZone : MonoBehaviour
                 return false;
         }
         return true;
+    }
+
+    /// <summary>
+    /// Local scale that makes the note look the same size on screen as its resting size,
+    /// even if this zone (or its parents) is scaled differently.
+    /// </summary>
+    private Vector3 GetLocalScaleFor(MoneyStack stack)
+    {
+        Vector3 world = stack.OriginalWorldScale;
+        Vector3 parent = _rect.lossyScale;
+        if (Mathf.Abs(parent.x) < 0.0001f || Mathf.Abs(parent.y) < 0.0001f)
+            return stack.OriginalScale;
+        return new Vector3(world.x / parent.x, world.y / parent.y, stack.OriginalScale.z);
     }
 
     private Quaternion GetRandomTiltRotation()
