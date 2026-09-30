@@ -1,23 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.InputSystem;
+//using System.Collections;
+//using System.Collections.Generic;
+//using UnityEngine;
 
-public class Playerinteractor : MonoBehaviour
-{
-    [SerializeField] private Transform playerCamera;
-    [SerializeField] private float interactionDistance;
+//public class Playerinteractor : MonoBehaviour
+//{
+//    [SerializeField] private Transform playerCamera;
+//    [SerializeField] private float interactionDistance;
 
-    [SerializeField] private InputActionReference interactionReference;
+//    [SerializeField] private InputActionReference interactionReference;
 
-    private void OnEnable()
-    {
-        interactionReference.action.Enable();
-        interactionReference.action.started += Playerinteracted;
-    }
-    private void OnDisable()
-    {
-        interactionReference.action.Disable();
+//    private void OnEnable()
+//    {
+//        interactionReference.action.Enable();
+//        interactionReference.action.started += Playerinteracted;
+//    }
+//    private void OnDisable()
+//    {
+//        interactionReference.action.Disable();
 
-    }
-}
+//    }
+//}
