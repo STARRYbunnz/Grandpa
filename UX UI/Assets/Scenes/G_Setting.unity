@@ -728,8 +728,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e798c7ec8a81c9b4686abfa90443ef96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  input: {fileID: 0}
-  lastValid: 
 --- !u!1 &240291298
 GameObject:
   m_ObjectHideFlags: 0
@@ -1949,7 +1947,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: MENU
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4310,7 +4308,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 46831f1d06d9c0545a91c786e415963a, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5971,6 +5969,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1084085244}
     m_Modifications:
+    - target: {fileID: 646518690782305269, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 090090b416be10d43b414e2bb50acb17, type: 3}
     - target: {fileID: 2416567603793386969, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
       propertyPath: dropArea
       value: 
@@ -6029,7 +6031,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7175324780689597877, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 100
+      value: 130
       objectReference: {fileID: 0}
     - target: {fileID: 7175324780689597877, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6535,6 +6537,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1084085244}
     m_Modifications:
+    - target: {fileID: 646518690782305269, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 090090b416be10d43b414e2bb50acb17, type: 3}
     - target: {fileID: 2416567603793386969, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
       propertyPath: dropArea
       value: 
@@ -6593,7 +6599,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7175324780689597877, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 100
+      value: 130
       objectReference: {fileID: 0}
     - target: {fileID: 7175324780689597877, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6724,6 +6730,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1084085244}
     m_Modifications:
+    - target: {fileID: 646518690782305269, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 090090b416be10d43b414e2bb50acb17, type: 3}
     - target: {fileID: 2416567603793386969, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
       propertyPath: dropArea
       value: 
@@ -6782,7 +6792,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7175324780689597877, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 100
+      value: 130
       objectReference: {fileID: 0}
     - target: {fileID: 7175324780689597877, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7584,6 +7594,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1084085244}
     m_Modifications:
+    - target: {fileID: 646518690782305269, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 090090b416be10d43b414e2bb50acb17, type: 3}
     - target: {fileID: 2416567603793386969, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
       propertyPath: dropArea
       value: 
@@ -7642,7 +7656,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7175324780689597877, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 100
+      value: 130
       objectReference: {fileID: 0}
     - target: {fileID: 7175324780689597877, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
       propertyPath: m_LocalPosition.x
@@ -8505,6 +8519,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1084085244}
     m_Modifications:
+    - target: {fileID: 646518690782305269, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 090090b416be10d43b414e2bb50acb17, type: 3}
     - target: {fileID: 2416567603793386969, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
       propertyPath: dropArea
       value: 
@@ -8563,7 +8581,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7175324780689597877, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 100
+      value: 130
       objectReference: {fileID: 0}
     - target: {fileID: 7175324780689597877, guid: 9a87fc65a57ad50419af5210efef4cae, type: 3}
       propertyPath: m_LocalPosition.x
