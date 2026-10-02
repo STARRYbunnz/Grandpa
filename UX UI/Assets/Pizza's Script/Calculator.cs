@@ -10,6 +10,7 @@ public class Calculator : MonoBehaviour
 {
     [Header("UI Reference")]
     public TMP_Text displayText;
+    public ConfirmController confirm;
 
     private string currentExpression = "";
 
@@ -107,6 +108,8 @@ public class Calculator : MonoBehaviour
 
     public void Equals()
     {
+        confirm.ShowConfirm();
+
         if (string.IsNullOrEmpty(currentExpression))
             return;
 
