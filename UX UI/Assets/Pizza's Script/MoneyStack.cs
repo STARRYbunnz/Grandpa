@@ -38,6 +38,9 @@ public class MoneyStack : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     /// <summary>The note's correct, undistorted local scale (captured on Awake).</summary>
     public Vector3 OriginalScale { get; private set; }
 
+    /// <summary>The note's on-screen size (world scale). DropZones use it so the note never changes size.</summary>
+    public Vector3 OriginalWorldScale { get; set; }
+
     [Header("Drag Feel")]
     [Tooltip("If true, the stack smoothly glides to the cursor instead of snapping instantly.")]
     public bool smoothDrag = true;
@@ -60,6 +63,21 @@ public class MoneyStack : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     /// <summary>The DropZone this stack is currently placed in, if any.</summary>
     public DropZone CurrentZone { get; private set; }
 
+    // ---- NEW: used by MoneySpawner ----
+
+    /// <summary>Zone this note belongs to (set by MoneySpawner). A bad drop returns it here.</summary>
+    public DropZone HomeZone { get; set; }
+
+    /// <summary>Places a freshly spawned note into a zone, as if it had been dropped there.</summary>
+    public void PlaceInZone(DropZone zone)
+    {
+        _canvas = GetComponentInParent<Canvas>();
+        zone.PlaceMoney(this);
+        CurrentZone = zone;
+    }
+
+    // -----------------------------------
+
     private void Awake()
     {
         _rect = GetComponent<RectTransform>();
@@ -70,6 +88,7 @@ public class MoneyStack : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         _originalRotation = _rect.localRotation;
         _originalScale = _rect.localScale;
         OriginalScale = _originalScale;
+        OriginalWorldScale = _rect.lossyScale;
         _originalParent = _rect.parent;
         _originalSiblingIndex = _rect.GetSiblingIndex();
     }
@@ -123,9 +142,14 @@ public class MoneyStack : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
         DropZone zone = DropZone.FindZoneAtScreenPoint(eventData.position, eventData.pressEventCamera);
 
+        Debug.Log("MoneyStack: dropped. zone under cursor = " + (zone != null ? zone.name : "none") +
+                  ", home zone = " + (HomeZone != null ? HomeZone.name : "NONE (not spawned by MoneySpawner)"));
+
         if (zone != null && zone.CanAccept(this))
         {
             zone.PlaceMoney(this);
+            if (zone == HomeZone)
+                _rect.localRotation = Quaternion.identity; // released back in its home zone: no tilt
             CurrentZone = zone;
         }
         else
@@ -137,6 +161,30 @@ public class MoneyStack : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     /// <summary>Snaps the stack back to its original cashier position.</summary>
     public void ReturnToCashier()
     {
+        // NEW: spawned notes go back to the zone they were spawned in
+        if (HomeZone != null && HomeZone.CanAccept(this))
+        {
+            HomeZone.PlaceMoney(this);
+            _rect.localRotation = Quaternion.identity; // returning home: no tilt
+            CurrentZone = HomeZone;
+            Debug.Log("MoneyStack: returned to home zone, straight (no tilt)");
+            return;
+        }
+
+        if (HomeZone != null)
+        {
+            // Home zone refused the note (full, or its Accepted Value isn't 0).
+            // Put it back where it started, straight.
+            Debug.LogWarning("MoneyStack: home zone '" + HomeZone.name + "' did not accept this note. " +
+                             "Check its Accepted Value is 0 and Max Stacks In Zone is big enough.");
+            _rect.SetParent(_originalParent, false);
+            _rect.anchoredPosition = _originalAnchoredPosition;
+            _rect.localRotation = Quaternion.identity;
+            _rect.localScale = _originalScale;
+            CurrentZone = null;
+            return;
+        }
+
         // "false" stops SetParent from rescaling the object to preserve its
         // world-space size under the new parent - that rescale is what was
         // making the note look bigger/smaller after being reparented.
