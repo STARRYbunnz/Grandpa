@@ -45,7 +45,6 @@ public class SideMenuController : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / animationDuration);
-            // ease-out for a nice smooth feel
             t = 1f - Mathf.Pow(1f - t, 3f);
             panel.anchoredPosition = Vector2.Lerp(start, target, t);
             yield return null;
