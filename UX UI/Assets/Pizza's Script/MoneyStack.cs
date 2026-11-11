@@ -86,8 +86,8 @@ public class MoneyStack : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         dragging = false;
         group.blocksRaycasts = true;
 
-        var zone = DropZone.FindZoneAtScreenPoint(e.position, e.pressEventCamera);
-        if (zone && zone.CanAccept(this))
+        if (DropZone.FindZoneAtScreenPoint(e.position, e.pressEventCamera, out DropZone zone)
+            && zone.CanAccept(this))
         {
             zone.PlaceMoney(this);
             CurrentZone = zone;

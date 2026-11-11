@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -37,5 +38,30 @@ public class DropZone : MonoBehaviour
     internal float GetTopEdgeInParentSpace(RectTransform rectTransform, Camera camera)
     {
         throw new System.NotImplementedException();
+    }
+
+    internal void RemoveStack(MoneyStack moneyStack)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal static bool FindZoneAtScreenPoint(Vector2 position, Camera pressEventCamera, out DropZone zone)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal bool CanAccept(MoneyStack moneyStack)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal void PlaceMoney(MoneyStack moneyStack)
+    {
+        throw new NotImplementedException();
+    }
+
+    public static implicit operator DropZone(bool v)
+    {
+        throw new NotImplementedException();
     }
 }
