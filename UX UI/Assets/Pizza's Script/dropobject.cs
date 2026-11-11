@@ -4,8 +4,10 @@ using UnityEngine.EventSystems;
 [RequireComponent(typeof(RectTransform))]
 public class FallingDraggableUI : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
-    public RectTransform dropArea;
+    [HideInInspector] public RectTransform dropArea; 
     public Canvas canvas;
+
+    public string dropAreaTag = "DropArea"; 
 
     public float returnSpeed = 1200f;
 
@@ -35,9 +37,48 @@ public class FallingDraggableUI : MonoBehaviour, IPointerDownHandler, IDragHandl
         if (!canvas) canvas = GetComponentInParent<Canvas>();
     }
 
+    void Start()
+    {
+        FindDropArea();
+    }
+
+    void FindDropArea()
+    {
+        if (dropArea) return;
+
+        // 1) Find by marker component (include inactive objects)
+        DropAreaMarker marker = FindFirstObjectByType<DropAreaMarker>(FindObjectsInactive.Include);
+        if (marker)
+        {
+            dropArea = marker.GetComponent<RectTransform>();
+            return;
+        }
+
+        // 2) Fallback: find by tag
+        try
+        {
+            GameObject tagged = GameObject.FindGameObjectWithTag(dropAreaTag);
+            if (tagged) dropArea = tagged.GetComponent<RectTransform>();
+        }
+        catch (UnityException)
+        {
+            // Tag doesn't exist in the project; ignore.
+        }
+
+        if (!dropArea)
+            Debug.LogWarning(name + ": no drop area found. Add a DropAreaMarker to your drop area object.", this);
+    }
+
     void Update()
     {
         rect.localScale = Vector3.Lerp(rect.localScale, targetScale, Time.deltaTime * scaleSpeed);
+
+        // Retry lookup in case the drop area spawns after this object
+        if (!dropArea)
+        {
+            FindDropArea();
+            if (!dropArea) return;
+        }
 
         if (isBouncing)
         {
@@ -54,7 +95,7 @@ public class FallingDraggableUI : MonoBehaviour, IPointerDownHandler, IDragHandl
                 rect.anchoredPosition = landedPosition + Vector2.up * (bounceHeight * Mathf.Sin(t * Mathf.PI));
             }
         }
-        else if (!isHeld && !isResting && dropArea)
+        else if (!isHeld && !isResting)
         {
             Rect area = WorldRect(dropArea);
 

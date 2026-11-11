@@ -87,7 +87,7 @@ public class DropZone : MonoBehaviour
         float minY = r.yMin + edgePadding + half.y;
         float maxY = r.yMax - edgePadding - half.y;
 
-        // Zone too small for padding: fall back to center
+        
         if (minX > maxX || minY > maxY) return r.center;
 
         Vector2 best = r.center;
@@ -108,7 +108,7 @@ public class DropZone : MonoBehaviour
 
             if (nearest >= minDistanceBetweenStacks) return candidate;
 
-            // Keep the best attempt in case none are far enough
+            
             if (nearest > bestDist)
             {
                 bestDist = nearest;
