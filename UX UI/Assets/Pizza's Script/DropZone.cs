@@ -21,7 +21,7 @@ public class DropZone : MonoBehaviour
 
     public int TotalValue;
     public RectTransform Rect { get; internal set; }
-    public static IEnumerable<DropZone> All { get; internal set; }
+    public static IEnumerable<DropZone> All => ActiveZones;
 
     internal string acceptId;
     public readonly List<MoneyStack> stacks = new List<MoneyStack>();
@@ -30,33 +30,91 @@ public class DropZone : MonoBehaviour
     void OnEnable() => ActiveZones.Add(this);
     void OnDisable() => ActiveZones.Remove(this);
 
-    internal void ClearOccupant(DraggableItem draggableItem)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    internal float GetTopEdgeInParentSpace(RectTransform rectTransform, Camera camera)
-    {
-        throw new System.NotImplementedException();
-    }
-
+    // Find the topmost zone under the screen point
     internal static bool FindZoneAtScreenPoint(Vector2 position, Camera pressEventCamera, out DropZone zone)
     {
-        throw new NotImplementedException();
+        zone = null;
+        for (int i = ActiveZones.Count - 1; i >= 0; i--)
+        {
+            DropZone z = ActiveZones[i];
+            if (RectTransformUtility.RectangleContainsScreenPoint(z.Rect, position, pressEventCamera))
+            {
+                zone = z;
+                return true;
+            }
+        }
+        return false;
     }
 
     internal bool CanAccept(MoneyStack moneyStack)
     {
-        throw new NotImplementedException();
+        return moneyStack != null && stacks.Count < maxStacksInZone;
     }
 
     internal void PlaceMoney(MoneyStack moneyStack)
     {
-        throw new NotImplementedException();
+        RectTransform stackRect = (RectTransform)moneyStack.transform;
+        stackRect.SetParent(Rect, false);
+        stackRect.localScale = moneyStack.OriginalScale;
+
+        stackRect.anchoredPosition = GetRandomFreePosition(stackRect);
+
+        float angle = UnityEngine.Random.Range(minTiltAngle, maxTiltAngle);
+        if (UnityEngine.Random.value < 0.5f) angle = -angle;
+        stackRect.localRotation = Quaternion.Euler(0f, 0f, angle);
+
+        stacks.Add(moneyStack);
+        TotalValue += moneyStack.Value;
+        OnTotalValueChanged?.Invoke(TotalValue);
     }
 
     internal void RemoveStack(MoneyStack moneyStack)
     {
-        throw new NotImplementedException();
+        if (stacks.Remove(moneyStack))
+        {
+            TotalValue -= moneyStack.Value;
+            OnTotalValueChanged?.Invoke(TotalValue);
+        }
+    }
+
+    Vector2 GetRandomFreePosition(RectTransform stackRect)
+    {
+        Rect r = Rect.rect;
+        Vector2 half = stackRect.rect.size * 0.5f;
+
+        float minX = r.xMin + edgePadding + half.x;
+        float maxX = r.xMax - edgePadding - half.x;
+        float minY = r.yMin + edgePadding + half.y;
+        float maxY = r.yMax - edgePadding - half.y;
+
+        // Zone too small for padding: fall back to center
+        if (minX > maxX || minY > maxY) return r.center;
+
+        Vector2 best = r.center;
+        float bestDist = -1f;
+
+        for (int i = 0; i < maxPlacementAttempts; i++)
+        {
+            Vector2 candidate = new Vector2(
+                UnityEngine.Random.Range(minX, maxX),
+                UnityEngine.Random.Range(minY, maxY));
+
+            float nearest = float.MaxValue;
+            foreach (MoneyStack s in stacks)
+            {
+                float d = Vector2.Distance(candidate, ((RectTransform)s.transform).anchoredPosition);
+                if (d < nearest) nearest = d;
+            }
+
+            if (nearest >= minDistanceBetweenStacks) return candidate;
+
+            // Keep the best attempt in case none are far enough
+            if (nearest > bestDist)
+            {
+                bestDist = nearest;
+                best = candidate;
+            }
+        }
+        return best;
     }
 }

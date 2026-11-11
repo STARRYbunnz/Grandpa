@@ -173,8 +173,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 21037066}
-  animationDuration: 0.3
-  startOpen: 0
+  slideDistance: 600
+  slideDuration: 0.3
+  easeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &74967151
 GameObject:
   m_ObjectHideFlags: 0
@@ -2966,16 +2990,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34091cd441430ee43ac136a8312d4cf4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  acceptedValue: 0
-  randomTilt: 1
-  snapToCenter: 0
-  stackOffset: {x: 0, y: 3}
   minTiltAngle: 6
   maxTiltAngle: 22
   minDistanceBetweenStacks: 0.35
   maxPlacementAttempts: 15
   maxStacksInZone: 20
   edgePadding: 20
+  TotalValue: 0
 --- !u!1 &853200478
 GameObject:
   m_ObjectHideFlags: 0
@@ -4835,8 +4856,8 @@ RectTransform:
   m_Children:
   - {fileID: 408970090}
   - {fileID: 1680543236}
-  - {fileID: 1723506907}
   - {fileID: 808300047}
+  - {fileID: 1723506907}
   - {fileID: 853200479}
   - {fileID: 298516703}
   - {fileID: 550200147}
