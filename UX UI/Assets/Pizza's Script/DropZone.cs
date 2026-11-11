@@ -40,11 +40,6 @@ public class DropZone : MonoBehaviour
         throw new System.NotImplementedException();
     }
 
-    internal void RemoveStack(MoneyStack moneyStack)
-    {
-        throw new NotImplementedException();
-    }
-
     internal static bool FindZoneAtScreenPoint(Vector2 position, Camera pressEventCamera, out DropZone zone)
     {
         throw new NotImplementedException();
@@ -60,7 +55,7 @@ public class DropZone : MonoBehaviour
         throw new NotImplementedException();
     }
 
-    public static implicit operator DropZone(bool v)
+    internal void RemoveStack(MoneyStack moneyStack)
     {
         throw new NotImplementedException();
     }
