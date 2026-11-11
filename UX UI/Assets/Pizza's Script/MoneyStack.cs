@@ -20,7 +20,7 @@ public class MoneyStack : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
     public int Value => (int)denomination;
     public Vector3 OriginalScale { get; private set; }
-    public DropZone CurrentZone { get; private set; }
+    public DropZone CurrentZone { get; private set; }   
 
     RectTransform rect;
     CanvasGroup group;
