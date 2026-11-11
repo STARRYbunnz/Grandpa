@@ -3,50 +3,64 @@ using UnityEngine;
 
 public class SideMenuController : MonoBehaviour
 {
-    [Header("References")]
     public RectTransform panel;
 
-    [Header("Settings")]
-    public float animationDuration = 0.3f;
-    public bool startOpen = false;
+    public float slideDistance = 600f;  
+    public float slideDuration = 0.3f;
+    public AnimationCurve easeCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
-    private Vector2 hiddenPos;
-    private Vector2 shownPos;
-    private bool isOpen;
-    private Coroutine currentAnim;
+    Vector2 shownPos;
+    Vector2 hiddenPos;
+    bool isOpen;
+    Coroutine routine;
 
     void Awake()
     {
-        float width = panel.rect.width;
+        if (!panel) panel = GetComponent<RectTransform>();
 
-        shownPos = new Vector2(0, panel.anchoredPosition.y);
-        hiddenPos = new Vector2(-width, panel.anchoredPosition.y);
+        shownPos = panel.anchoredPosition;
+        hiddenPos = shownPos + Vector2.left * slideDistance;
 
-        isOpen = startOpen;
-        panel.anchoredPosition = isOpen ? shownPos : hiddenPos;
+        panel.anchoredPosition = hiddenPos;
+        isOpen = false;
     }
 
     public void ToggleMenu()
     {
-        if (currentAnim != null)
-            StopCoroutine(currentAnim);
-
-        Vector2 target = isOpen ? hiddenPos : shownPos;
-        currentAnim = StartCoroutine(AnimatePanel(target));
-        isOpen = !isOpen;
+        if (isOpen) CloseMenu();
+        else OpenMenu();
     }
 
-    private IEnumerator AnimatePanel(Vector2 target)
+    public void OpenMenu()
+    {
+        if (isOpen) return;
+        isOpen = true;
+        Slide(shownPos);
+    }
+
+    public void CloseMenu()
+    {
+        if (!isOpen) return;
+        isOpen = false;
+        Slide(hiddenPos);
+    }
+
+    void Slide(Vector2 target)
+    {
+        if (routine != null) StopCoroutine(routine);
+        routine = StartCoroutine(SlideRoutine(target));
+    }
+
+    IEnumerator SlideRoutine(Vector2 target)
     {
         Vector2 start = panel.anchoredPosition;
         float elapsed = 0f;
 
-        while (elapsed < animationDuration)
+        while (elapsed < slideDuration)
         {
             elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / animationDuration);
-            t = 1f - Mathf.Pow(1f - t, 3f);
-            panel.anchoredPosition = Vector2.Lerp(start, target, t);
+            float t = easeCurve.Evaluate(elapsed / slideDuration);
+            panel.anchoredPosition = Vector2.LerpUnclamped(start, target, t);
             yield return null;
         }
 
