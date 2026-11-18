@@ -10,7 +10,7 @@
 //    [SerializeField] private InputActionReference interactionReference;
 
 //    private void OnEnable()
-//    {
+//    //{
 //        interactionReference.action.Enable();
 //        interactionReference.action.started += Playerinteracted;
 //    }
