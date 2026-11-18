@@ -64,6 +64,7 @@ public class DropZone : MonoBehaviour
         stackRect.localRotation = Quaternion.Euler(0f, 0f, angle);
 
         stacks.Add(moneyStack);
+        moneyStack.CurrentZone = this;
         TotalValue += moneyStack.Value;
         OnTotalValueChanged?.Invoke(TotalValue);
     }

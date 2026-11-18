@@ -7,6 +7,8 @@ public class MoneyStack : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 {
     public enum Denomination
     {
+        One = 1,
+        Five = 5,
         Ten = 10,
         Twenty = 20,
         Fifty = 50,
@@ -20,7 +22,7 @@ public class MoneyStack : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
     public int Value => (int)denomination;
     public Vector3 OriginalScale { get; private set; }
-    public DropZone CurrentZone { get; private set; }   
+    public DropZone CurrentZone { get; internal set; }   
 
     RectTransform rect;
     CanvasGroup group;

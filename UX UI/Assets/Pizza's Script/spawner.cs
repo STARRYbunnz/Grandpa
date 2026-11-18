@@ -1,13 +1,14 @@
+using System;
 using UnityEngine;
 
 public class UISpawner : MonoBehaviour
 {
     [Header("What to spawn")]
-    public RectTransform prefab;            
+    public RectTransform prefab;
 
     [Header("Where to spawn")]
-    public RectTransform spawnArea;         
-    public RectTransform container;         
+    public RectTransform spawnArea;
+    public RectTransform container;
 
     [Header("Amount (random, inclusive)")]
     public int minSpawn = 1;
@@ -15,7 +16,11 @@ public class UISpawner : MonoBehaviour
 
     [Header("Behaviour")]
     public bool spawnOnStart = true;
-    public bool spawnOnlyOnce = true;       
+    public bool spawnOnlyOnce = true;
+
+    // Other scripts can listen to this to know how many candies spawned
+    public event Action<int> OnSpawned;
+    public int LastSpawnCount { get; private set; }
 
     static readonly Vector3[] corners = new Vector3[4];
     bool hasSpawned;
@@ -33,7 +38,6 @@ public class UISpawner : MonoBehaviour
         if (spawnOnStart) Spawn();
     }
 
-    
     public void Spawn()
     {
         if (!prefab || !container) return;
@@ -42,7 +46,7 @@ public class UISpawner : MonoBehaviour
 
         int lo = Mathf.Max(0, Mathf.Min(minSpawn, maxSpawn));
         int hi = Mathf.Max(minSpawn, maxSpawn);
-        int count = Random.Range(lo, hi + 1);   
+        int count = UnityEngine.Random.Range(lo, hi + 1);
 
         for (int i = 0; i < count; i++)
         {
@@ -50,14 +54,16 @@ public class UISpawner : MonoBehaviour
             item.position = RandomPointInSpawnArea(item.position.z);
         }
 
-        Debug.Log("Spawned " + count + " items");
+        LastSpawnCount = count;
+        Debug.Log("Spawned " + count + " candies");
+        OnSpawned?.Invoke(count);
     }
 
     Vector3 RandomPointInSpawnArea(float z)
     {
         spawnArea.GetWorldCorners(corners);
-        float x = Random.Range(corners[0].x, corners[2].x);
-        float y = Random.Range(corners[0].y, corners[2].y);
+        float x = UnityEngine.Random.Range(corners[0].x, corners[2].x);
+        float y = UnityEngine.Random.Range(corners[0].y, corners[2].y);
         return new Vector3(x, y, z);
     }
 }
