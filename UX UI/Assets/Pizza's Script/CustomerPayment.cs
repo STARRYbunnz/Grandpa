@@ -15,36 +15,89 @@ public class CustomerPayment : MonoBehaviour
     [Header("Price")]
     public int pricePerCandy = 20;
 
+    [Header("Dialogue")]
+    [Tooltip("If ticked, money only appears after OnDialogueFinished() is called.")]
+    public bool waitForDialogue = true;
+
     [Header("Debug (read only)")]
     public int candyCount;
     public int totalPrice;
     public int moneyGiven;
+
+    // True once the customer has put the money down (until the next customer)
+    public bool MoneyPutDown { get; private set; }
+    public event System.Action OnMoneyPutDown;
+
+    // The money stacks the customer put down (so we can tell them from the change we give)
+    public readonly List<MoneyStack> customerStacks = new List<MoneyStack>();
+
+    int pendingCandies = -1;      // candies spawned, money not put down yet
+    bool dialogueFinished;
 
     // True when the money in the drop zone is bigger than the price
     public bool IsPaymentEnough => dropZone != null && dropZone.TotalValue > totalPrice;
 
     void OnEnable()
     {
-        if (candySpawner) candySpawner.OnSpawned += PutDownMoney;
+        if (candySpawner) candySpawner.OnSpawned += OnCandiesSpawned;
         else Debug.LogError("CustomerPayment: Candy Spawner is not assigned.");
     }
 
     void OnDisable()
     {
-        if (candySpawner) candySpawner.OnSpawned -= PutDownMoney;
+        if (candySpawner) candySpawner.OnSpawned -= OnCandiesSpawned;
     }
 
     void Start()
     {
-        Debug.Log("CustomerPayment started. Waiting for candies to spawn...");
-
         // In case candies were already spawned before we subscribed
         if (candySpawner && candySpawner.LastSpawnCount > 0 && candyCount == 0)
-            PutDownMoney(candySpawner.LastSpawnCount);
+            OnCandiesSpawned(candySpawner.LastSpawnCount);
+    }
+
+    // ---------------------------------------------------------------
+    // Call this from your dialogue script when the customer finishes
+    // speaking:   FindObjectOfType<CustomerPayment>().OnDialogueFinished();
+    // (You can also hook it to a UnityEvent / Button in the Inspector.)
+    // ---------------------------------------------------------------
+    public void OnDialogueFinished()
+    {
+        dialogueFinished = true;
+
+        if (pendingCandies > 0)
+        {
+            int candies = pendingCandies;
+            pendingCandies = -1;
+            dialogueFinished = false;      // reset for the next customer
+            PutDownMoney(candies);
+        }
+    }
+
+    // Call this when a NEW customer arrives, so the next dialogue is waited for
+    public void ResetForNewCustomer()
+    {
+        pendingCandies = -1;
+        dialogueFinished = false;
+        MoneyPutDown = false;
+    }
+
+    // Candies just spawned
+    void OnCandiesSpawned(int candies)
+    {
+        if (!waitForDialogue || dialogueFinished)
+        {
+            dialogueFinished = false;
+            PutDownMoney(candies);
+            return;
+        }
+
+        // remember how many candies, and wait for the dialogue to finish
+        pendingCandies = candies;
+        Debug.Log("CustomerPayment: " + candies + " candies spawned, waiting for dialogue to finish...");
     }
 
     // Right-click the component title in the Inspector > "Test Put Down Money"
-    // (use while the game is playing) to test without waiting for the spawner.
+    // (use while the game is playing) to test without waiting for anything.
     [ContextMenu("Test Put Down Money")]
     void TestPutDownMoney()
     {
@@ -57,10 +110,9 @@ public class CustomerPayment : MonoBehaviour
         moneyPrefabs.Sort((a, b) => a.Value.CompareTo(b.Value));
     }
 
-    // Called automatically when candies are spawned
     public void PutDownMoney(int candies)
     {
-        Debug.Log("CustomerPayment: " + candies + " candies spawned, putting down money...");
+        Debug.Log("CustomerPayment: " + candies + " candies, putting down money...");
         SortPrefabs();
         if (!dropZone)
         {
@@ -73,6 +125,8 @@ public class CustomerPayment : MonoBehaviour
             return;
         }
 
+        MoneyPutDown = false;
+        customerStacks.Clear();
         candyCount = candies;
         totalPrice = candies * pricePerCandy;
         moneyGiven = 0;
@@ -107,6 +161,9 @@ public class CustomerPayment : MonoBehaviour
         Debug.Log("Candies: " + candyCount + " | Price: " + totalPrice +
                   " | Money in zone: " + dropZone.TotalValue +
                   " | Change: " + (dropZone.TotalValue - totalPrice));
+
+        MoneyPutDown = true;
+        OnMoneyPutDown?.Invoke();
     }
 
     void PlaceInZone(MoneyStack prefab)
@@ -127,6 +184,7 @@ public class CustomerPayment : MonoBehaviour
             parent = canvas.transform;
         }
         MoneyStack stack = Instantiate(prefab, parent, false);
+        customerStacks.Add(stack);
 
         dropZone.PlaceMoney(stack);                // moves it into the zone, random position, tilt, adds to TotalValue
     }

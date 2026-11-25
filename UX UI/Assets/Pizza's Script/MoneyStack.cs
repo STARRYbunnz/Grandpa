@@ -22,7 +22,7 @@ public class MoneyStack : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
     public int Value => (int)denomination;
     public Vector3 OriginalScale { get; private set; }
-    public DropZone CurrentZone { get; internal set; }   
+    public DropZone CurrentZone { get; internal set; }
 
     RectTransform rect;
     CanvasGroup group;
@@ -35,6 +35,7 @@ public class MoneyStack : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
     bool dragging;
     Vector2 target;
+    DropZone lastZone;  
 
     void Awake()
     {
@@ -52,16 +53,21 @@ public class MoneyStack : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     public void OnBeginDrag(PointerEventData e)
     {
         dragging = true;
-        target = rect.anchoredPosition;
 
+        lastZone = CurrentZone;   
         if (CurrentZone)
         {
             CurrentZone.RemoveStack(this);
             CurrentZone = null;
         }
 
-        rect.localRotation = Quaternion.identity;
+        Canvas root = canvas ? canvas.rootCanvas : null;
+        if (root) rect.SetParent(root.transform, true);
         rect.SetAsLastSibling();
+        rect.localScale = OriginalScale;
+
+        target = rect.anchoredPosition;
+        rect.localRotation = Quaternion.identity;
         group.blocksRaycasts = false;
     }
 
@@ -88,11 +94,18 @@ public class MoneyStack : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         dragging = false;
         group.blocksRaycasts = true;
 
-        if (DropZone.FindZoneAtScreenPoint(e.position, e.pressEventCamera, out DropZone zone)
+        if (DropZone.FindZoneAtScreenPoint(e.position, e.pressEventCamera, out DropZone zone, this)
             && zone.CanAccept(this))
         {
             zone.PlaceMoney(this);
             CurrentZone = zone;
+            return;
+        }
+
+        if (lastZone && lastZone.CanAccept(this))
+        {
+            lastZone.PlaceMoney(this);
+            CurrentZone = lastZone;
             return;
         }
 

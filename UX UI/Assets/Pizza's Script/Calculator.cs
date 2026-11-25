@@ -13,6 +13,7 @@ public class Calculator : MonoBehaviour
     public ConfirmController confirm;
 
     private string currentExpression = "";
+    public event Action<float> OnResult;
 
 
     public void Number0()
@@ -127,6 +128,7 @@ public class Calculator : MonoBehaviour
 
             currentExpression = value.ToString();
             UpdateDisplay();
+            OnResult?.Invoke(value);
         }
         catch
         {
